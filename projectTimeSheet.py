@@ -1,9 +1,5 @@
-import subprocess
-subprocess.check_call(["pip", "install", "plotly"])
-
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 
 st.title("Project-wise Monthly Timesheet Dashboard")
 
@@ -55,26 +51,19 @@ if uploaded_file:
         total_hours = display_data[hours_column].sum()
         st.metric("Total Hours", f"{total_hours:.2f}")
         
-        # Create bar chart using plotly
+        # Create bar chart using streamlit native chart
         if not display_data.empty:
-            fig = px.bar(
-                display_data,
-                x=employee_column,
-                y=hours_column,
-                title=f'Hours Worked - {selected_project} - {selected_month}',
-                height=500
-            )
+            st.subheader("Hours Distribution")
             
-            # Customize the layout
-            fig.update_layout(
-                xaxis_tickangle=-45,
-                xaxis_title="Employee",
-                yaxis_title="Hours",
-                showlegend=False,
-                margin=dict(b=100)  # Add bottom margin for rotated labels
-            )
+            # Set the employee column as index for proper chart display
+            chart_data = display_data.set_index(employee_column)
             
-            st.plotly_chart(fig, use_container_width=True)
+            # Display the bar chart
+            st.bar_chart(chart_data)
+            
+            # Optional: Add a line chart view
+            if st.checkbox("Show Line Chart View"):
+                st.line_chart(chart_data)
         
         # Download button for filtered data
         csv = display_data.to_csv(index=False)
